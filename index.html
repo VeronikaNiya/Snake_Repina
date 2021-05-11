@@ -1,0 +1,57 @@
+<canvas id="gP">HTML 5 не поддерживется</canvas>
+
+<script>
+ rand = function (min, max) {k = Math.floor(Math.random() * (max - min) + min); return (Math.round( k / size) * size);}
+ newApple = function () {appleXY = [rand(0, innerWidth - 25),rand(0, innerHeight - 25)];},
+	newBody = function () {snakeBody = [{x: 0,y: 0}];}
+ gP = document.getElementById('gP'),
+	g = gP.getContext('2d'),
+	snakeBody = null,
+	direction = 1, //1 - вправо, 2 - вниз 3 - влево, 4 - вверх
+	appleXY = null,
+	size = 25; newBody(); newApple();
+gP.width = innerWidth - 25;
+gP.height = innerHeight - 25;
+
+setInterval(function(){
+	if (appleXY[0] + size >= gP.width || appleXY[1] + size >= gP.height) newApple(); 
+	g.clearRect(0,0,gP.width,gP.height); //Очищаем поле
+
+	g.fillStyle = "#BCF5A9";
+	g.fillRect(0,0,gP.width,gP.height)
+
+	g.fillStyle = "red";
+	g.fillRect(...appleXY, size, size);
+	g.fillStyle = "green";
+	snakeBody.forEach(function(el, i){
+		if (el.x == snakeBody[snakeBody.length - 1].x && el.y == snakeBody[snakeBody.length - 1].y && i < snakeBody.length - 1) snakeBody.splice(0,snakeBody.length-1), snakeBody = [{x:0,y:0}], direction = 1; //Проверка на столкновение
+	});
+	
+	var m = snakeBody[0], buff = {x: m.x,y: m.y}, head = snakeBody[snakeBody.length - 1]; // сохраняем хвост и голову
+	if (direction == 1) buff.x = head.x + size, buff.y = head.y;
+	if (direction == 2) buff.y = head.y + size, buff.x = head.x;
+	if (direction == 3) buff.x = head.x - size, buff.y = head.y;
+	if (direction == 4) buff.y = head.y - size, buff.x = head.x;
+	snakeBody.push(buff); //Добавляем хвост
+	snakeBody.splice(0,1); //Удаляем хвост
+	
+	snakeBody.forEach(function(pob, i){
+		if (direction == 1) if (pob.x > Math.round(gP.width / size) * size) pob.x = 0; //тп вправо
+		if (direction == 2) if (pob.y > Math.round(gP.height / size) * size) pob.y = 0; //тп вниз
+		if (direction == 3) if (pob.x < 0) pob.x = Math.round(gP.width / size) * size; //тп влево
+		if (direction == 4) if (pob.y < 0) pob.y = Math.round(gP.height / size) * size; //тп вверх
+		if (pob.x == appleXY[0] && pob.y == appleXY[1]) newApple(), snakeBody.unshift({x: buff.x - size, y:head.y})//кушаем яблоко, растем
+		g.fillRect(pob.x, pob.y, size, size);		
+	});
+}, 50);
+
+onkeydown = function (e) {
+	k = e.keyCode;
+	if ([38,39,40,37].indexOf(k) >= 0) 
+		e.preventDefault();
+	if (k == 39 && direction != 3) direction = 1;
+	if (k == 40 && direction != 4) direction = 2;
+	if (k == 37 && direction != 1) direction = 3;
+	if (k == 38 && direction != 2) direction = 4;
+};
+</script>
